@@ -1,3 +1,5 @@
+import { jobOperatorRoleSchema, JobOperatorRole } from "./models"
+
 const { SwaggerAPI } = require('koa-joi-router-docs')
 const Router = require('koa-joi-router')
 const Joi = Router.Joi
@@ -78,6 +80,42 @@ router.post('/signup', {
   }
 })
 
+router.post('/test', {
+  meta: {
+    swagger: {
+      summary: 'Test Post',
+      description: 'Test post.',
+      tags: ['test']
+    }
+  },
+  validate: {
+    type: 'json',
+    body: jobOperatorRoleSchema,
+    output: {
+      200: {
+        body: {
+          foo: Joi.number().description('birth year')
+        }
+      },
+      500: {
+        body: {
+          code: Joi.number().description('error code'),
+        }
+      }
+    }
+  },
+  handler: async ctx => {
+    const jobOperator: JobOperatorRole = ctx.request.body;
+
+    // console.log(ctx.request.body);
+    // console.log(await Joi.validate(jobOperator));
+    ctx.body = {
+      foo: jobOperator.birth_year
+    };
+
+  }
+})
+
 /**
  * Generate Swagger json from the router object
  */
@@ -133,6 +171,66 @@ router.get('/apiDocs', async ctx => {
   </body>
   </html>
   `
+})
+
+router.get('/docs', async ctx => {
+  //https://github.com/sunnyagarwal008/setup-swagger-ui-in-one-page/blob/master/swagger-ui.html
+  ctx.body = `
+  <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>ServiceDesk Service Swagger</title>
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@3.12.1/swagger-ui.css">
+
+
+</head>
+<body>
+
+<div id="swagger-ui"></div>
+
+<script src="https://unpkg.com/swagger-ui-dist@3.12.1/swagger-ui-standalone-preset.js"></script>
+<script src="https://unpkg.com/swagger-ui-dist@3.12.1/swagger-ui-bundle.js"></script>
+
+<script>
+    window.onload = function() {
+        // Build a system
+        const ui = SwaggerUIBundle({
+            url: "/_api.json",
+            dom_id: '#swagger-ui',
+            deepLinking: true,
+            presets: [
+                SwaggerUIBundle.presets.apis,
+                SwaggerUIStandalonePreset
+            ],
+            plugins: [
+                SwaggerUIBundle.plugins.DownloadUrl
+            ],
+            layout: "StandaloneLayout",
+        })
+        window.ui = ui
+    }
+</script>
+</body>
+</html>
+  `;
+
+  // ctx.body = `
+  // <div id="swagger-ui"></div>
+  // <script src="//unpkg.com/swagger-ui-dist@3/swagger-ui-bundle.js"></script>
+  // <!-- SwaggerUIBundle is now available on the page -->
+  // <script>
+  // const ui = SwaggerUIBundle({
+  //   url: "/_api.json",
+  //   dom_id: '#swagger-ui',
+  //   presets: [
+  //     SwaggerUIBundle.presets.apis,
+  //     SwaggerUIBundle.SwaggerUIStandalonePreset
+  //   ],
+  //   layout: "StandaloneLayout"
+  // })
+  // </script>
+  // `;
 })
 
 module.exports = router
