@@ -1,21 +1,7 @@
 import * as Joi from '@hapi/joi';
-import 'joi-extract-type';
+import { jobOperatorRoleSchema, JobOperatorRole } from "./models";
 
-export const jobOperatorRoleSchema = Joi.object({
-  id: Joi.string().required(),
-  user_id: Joi.string().required(),
-  job_id: Joi.string().required(),
-  role: Joi.string().valid([ 'recruiter', 'requester' ]),
-  birth_year: Joi.number()
-        .integer()
-        .min(1900)
-        .max(2013).disallow(2000)
-  //pipeline_rules: Joi.array().items(rule),
-});
-
-type extractComplexType = Joi.extractType<typeof jobOperatorRoleSchema>;
-
-export const extractedComplexType: extractComplexType = {
+export const jobOperator1: JobOperatorRole = {
   id: '2015',
   user_id: '102',
   job_id: '52',
@@ -23,7 +9,7 @@ export const extractedComplexType: extractComplexType = {
   //pipeline_rules: [extractedRule]
 };
 
-export const extractedComplexType2: extractComplexType = {
+export const jobOperator2: JobOperatorRole = {
   id: '2015',
   user_id: '102',
   job_id: '52',
@@ -33,20 +19,27 @@ export const extractedComplexType2: extractComplexType = {
 };
 
 (async () => {
-  await Joi.validate(extractedComplexType, jobOperatorRoleSchema)
+  await Joi.validate(jobOperator1, jobOperatorRoleSchema)
     .then(res => {
       console.log('valid 1', res);
     }).catch(err => {
       console.log('error 1', err.name, err.message);
     })
 
-  await Joi.validate(extractedComplexType2, jobOperatorRoleSchema)
+  await Joi.validate(jobOperator2, jobOperatorRoleSchema)
     .then(res => {
       console.log('valid 2', res);
     }).catch(err => {
       console.log('error 2', err.name, err.message);
     });
 
-})()
+})();
+
+const koa = require('koa')
+const app = new koa()
+app.use(require('./routes').middleware())
+app.listen(5566, () => {
+  console.log('API docs url: http://localhost:5566/apiDocs')
+})
 
 
